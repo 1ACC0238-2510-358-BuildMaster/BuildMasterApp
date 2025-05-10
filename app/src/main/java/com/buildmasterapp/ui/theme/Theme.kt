@@ -1,6 +1,5 @@
 package com.buildmasterapp.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,28 +8,29 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+private val BuildMasterDarkColorScheme = darkColorScheme(
+    primary = Color(0xFF00B253),       // Verde Tecla
+    secondary = Color(0xFF333333),     // Gris Oscuro
+    tertiary = Color(0xFFF5F5F5),      // Gris Claro
+    background = Color(0xFF000000),    // Negro si es dark theme
+    surface = Color(0xFF333333),
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    onTertiary = Color.Black
+)
+
+private val BuildMasterLightColorScheme = lightColorScheme(
+    primary = Color(0xFF00B253),       // Verde Tecla
+    secondary = Color(0xFF333333),     // Gris Oscuro
+    tertiary = Color(0xFFF5F5F5),      // Gris Claro
+    background = Color(0xFFFFFFFF),    // Blanco
+    surface = Color(0xFFF5F5F5),
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onTertiary = Color.Black
 )
 
 @Composable
@@ -46,13 +46,13 @@ fun BuildMasterAppTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> BuildMasterDarkColorScheme
+        else -> BuildMasterLightColorScheme
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = BuildMasterTypography,
         content = content
     )
 }

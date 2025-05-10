@@ -8,6 +8,18 @@ data class Component(
     val type: String,
     val price: Double,
     val specifications: Specifications,
-    val categoryId: Long,
-    val manufacturerId: Long
+    val category: Category,
+    val manufacturer: Manufacturer
+)
+data class Category(
+    val id: Long,
+    val name: String,
+    val parent: Category? = null
+)
+
+data class Manufacturer(
+    val id: Long,
+    val name: String,
+    val website: String? = null,
+    val supportEmail: String? = null
 )
