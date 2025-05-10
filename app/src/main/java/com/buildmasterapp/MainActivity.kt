@@ -2,6 +2,7 @@ package com.buildmasterapp
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +28,8 @@ class MainActivity : ComponentActivity() {
             override fun onResponse(call: Call<List<Component>>, response: Response<List<Component>>) {
                 if (response.isSuccessful) {
                     val components = response.body() ?: emptyList()
+                    Log.d("API", "Cantidad de componentes: ${components.size}")
+                    Toast.makeText(this@MainActivity, "Componentes: ${components.size}", Toast.LENGTH_SHORT).show()
                     adapter = ComponentAdapter(components)
                     recyclerView.adapter = adapter
                 }
