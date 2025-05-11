@@ -1,6 +1,8 @@
 package com.buildmasterapp.catalogue.domain.model
 
 import com.buildmasterapp.catalogue.domain.model.Specifications
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 data class Component(
     val id: Long? = null,
@@ -11,10 +13,11 @@ data class Component(
     val category: Category,
     val manufacturer: Manufacturer
 )
+@Serializable
 data class Category(
-    val id: Long,
-    val name: String,
-    val parent: Category? = null
+    @SerialName("id") val id: Long,
+    @SerialName("name") val name: String,
+    @SerialName("parent") val parent: Category? = null
 )
 
 data class Manufacturer(
