@@ -73,7 +73,7 @@ fun Catalogue(
     val components: List<Component> by viewModel.components.collectAsState()
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
     val errorMessage: String? by viewModel.errorMessage.collectAsState()
-
+    val expanded = remember { mutableStateOf(false) }
     LaunchedEffect(key1 = Unit) {
         viewModel.loadComponents()
     }
@@ -161,7 +161,6 @@ fun ComponentItem(
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF333333)
             )
-
             AnimatedVisibility(visible = expanded.value) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     Text(

@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import retrofit2.Response
 
 class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
     // Estado para componentes
@@ -225,13 +224,13 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
             _isLoading.value = true
             try {
                 val response = api.deleteComponent(componentId)
-                if (response.isSuccessful) {
+                /*if (response.isSuccessful) {
                     _errorMessage.value = "Componente eliminado exitosamente"
                     loadComponents() // Recarga la lista actualizada
                     onSuccess()
                 } else {
                     _errorMessage.value = "Error al eliminar: ${response.code()}"
-                }
+                }*/
             } catch (e: Exception) {
                 _errorMessage.value = "Error: ${e.message}"
             } finally {
