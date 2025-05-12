@@ -12,6 +12,7 @@ import com.buildmasterapp.catalogue.viewmodels.ComponentViewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.buildmasterapp.catalogue.presentation.ComponentDetailsScreen
+import com.buildmasterapp.catalogue.presentation.ComponentFormScreen
 
 
 @Composable
@@ -22,6 +23,16 @@ fun Navigator(viewModel: ComponentViewModel, context: Context) {
     NavHost(navController = navController, startDestination = "Catalogue") {
         composable("Catalogue") {
             Catalogue(viewModel, navController, context)
+        }
+        composable("create") {
+            ComponentFormScreen(viewModel, navController)
+        }
+        composable(
+            route = "edit/{componentId}",
+            arguments = listOf(navArgument("componentId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val componentId = backStackEntry.arguments?.getLong("componentId")
+            ComponentFormScreen(viewModel, navController, componentId)
         }
         composable(
             route = "details/{componentId}",

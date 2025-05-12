@@ -8,6 +8,7 @@ import com.buildmasterapp.catalogue.data.api.RetrofitClient
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModel
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModelFactory
 import com.buildmasterapp.shared.navigation.Navigator
+import com.buildmasterapp.ui.theme.BuildMasterTheme
 
 class MainActivity : ComponentActivity() {
     private val viewModel: ComponentViewModel by viewModels {
@@ -18,7 +19,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            Navigator(viewModel = viewModel, context = this)
+            BuildMasterTheme {
+                Navigator(viewModel = viewModel, context = this)
+            }
         }
     }
 }
