@@ -8,15 +8,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel // Necesario para viewModel()
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.buildmasterapp.catalogue.data.api.RetrofitClient
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModel
+import com.buildmasterapp.catalogue.viewmodels.ComponentViewModelFactory
 import com.buildmasterapp.shared.navigation.Navigator
 import com.buildmasterapp.ui.screens.ChatScreen
 import com.buildmasterapp.ui.screens.HomeScreen
-import com.buildmasterapp.ui.screens.PCConfigScreen
 import com.buildmasterapp.ui.screens.PricesScreen
 
 
@@ -27,22 +28,21 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         startDestination = Screen.Home.route,
         modifier = modifier
     ) {
+
         composable(Screen.Home.route) { HomeScreen() }
-        composable(Screen.PCConfig.route) { PCConfigScreen() }
-        composable(Screen.Chat.route) { ChatScreen() }
 
 
-        // Aquí está el cambio clave:
-        composable(Screen.Store.route) {
-            // Instanciamos el ComponentViewModel aquí.
-
-            val componentViewModel: ComponentViewModel = viewModel()
+        composable(Screen.PCConfig.route) {
             val context = LocalContext.current
-            // Llamamos al Navigator.
+            val api = RetrofitClient.instance // o la instancia real según cómo lo implementaste
+            val factory = ComponentViewModelFactory(api)
 
-            // lo cual está bien para una sub-sección de navegación.
+            val componentViewModel: ComponentViewModel = viewModel(factory = factory)
+
             Navigator(catalogueViewModel = componentViewModel)
         }
+        composable(Screen.Chat.route) { ChatScreen() }
+
 
         composable(Screen.Prices.route) {
             PricesScreen()

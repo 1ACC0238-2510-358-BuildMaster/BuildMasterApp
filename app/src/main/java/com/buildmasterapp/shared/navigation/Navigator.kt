@@ -33,14 +33,14 @@ fun Navigator(
             Catalogue(catalogueViewModel, navController, context)
         }
         composable("create") {
-            ComponentFormScreen(viewModel, navController)
+            ComponentFormScreen(viewModel(), navController)
         }
         composable(
             route = "edit/{componentId}",
             arguments = listOf(navArgument("componentId") { type = NavType.LongType })
         ) { backStackEntry ->
             val componentId = backStackEntry.arguments?.getLong("componentId")
-            ComponentFormScreen(viewModel, navController, componentId)
+            ComponentFormScreen(viewModel(), navController, componentId)
         }
         composable(
             route = "details/{componentId}",

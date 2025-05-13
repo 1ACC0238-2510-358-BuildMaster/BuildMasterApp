@@ -7,10 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
-import com.buildmasterapp.catalogue.data.api.RetrofitClient
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModel
-import com.buildmasterapp.catalogue.viewmodels.ComponentViewModelFactory
-import com.buildmasterapp.shared.navigation.Navigator
 import com.buildmasterapp.ui.composables.DashboardScreen
 import com.buildmasterapp.ui.theme.BuildMasterTheme
 
