@@ -41,6 +41,8 @@ android {
 
 dependencies {
 
+    implementation("androidx.compose.material3:material3:1.1.2")
+
     // JSON parsing
     implementation("com.google.code.gson:gson:2.10.1")
 
@@ -79,6 +81,11 @@ dependencies {
     // Icons
     implementation("androidx.compose.material:material-icons-core:1.5.4")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
+
+    implementation(platform("androidx.compose:compose-bom:2024.01.00"))
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
