@@ -17,6 +17,13 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
     object Store : Screen("store", R.string.store, Icons.Filled.Store)
     object Prices : Screen("prices", R.string.prices, Icons.Filled.AttachMoney)
 
+    //Para catalogo de objetos
+    object Catalogue : Screen("catalogue",0, Icons.Filled.Store) // o el ícono que prefieras
+    object ComponentCreate : Screen("component_create", 0)
+    object ComponentEdit : Screen("component_edit/{componentId}", 0)
+    object ComponentDetails : Screen("component_details/{componentId}", 0)
+
+
     // Para el Navigation Drawer (sin íconos en la definición de ruta principal)
     object Profile : Screen("profile", R.string.profile)
     object Settings : Screen("settings", R.string.settings)
