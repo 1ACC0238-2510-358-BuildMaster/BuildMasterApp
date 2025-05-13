@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.buildmasterapp.catalogue.data.api.ComponentApi
 
 class ComponentViewModelFactory(private val api: ComponentApi) : ViewModelProvider.Factory {
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ComponentViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

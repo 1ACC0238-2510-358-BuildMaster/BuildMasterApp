@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
+
     // Estado para componentes
     private val _components = MutableStateFlow<List<Component>>(emptyList())
     val components: StateFlow<List<Component>> = _components
