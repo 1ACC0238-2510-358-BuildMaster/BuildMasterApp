@@ -12,5 +12,6 @@
     <string name="menu">Menú</string>
     <string name="user_profile">Perfil de Usuario</string>
     <string name="prices">Prices</string>
+    <string name="app_logo">Logo de la aplicación</string>
 
 </resources>

@@ -1,18 +1,24 @@
 package com.buildmasterapp.ui.composables
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
+import coil3.compose.rememberAsyncImagePainter
 import com.buildmasterapp.Navigation.AppNavHost
 import com.buildmasterapp.Navigation.Screen
 import com.buildmasterapp.Navigation.bottomNavItems
@@ -75,7 +81,18 @@ fun DashboardScreen() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(topBarTitle) },
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = rememberAsyncImagePainter("https://i.postimg.cc/KjnzrSC9/Build-Master-Logo-negro-sin-fongo.jpg"),
+                                contentDescription = stringResource(R.string.app_logo),
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .padding(end = 8.dp)
+                            )
+                            Text(topBarTitle)
+                        }
+                    },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -90,7 +107,6 @@ fun DashboardScreen() {
                     },
                     actions = {
                         IconButton(onClick = {
-                            // Navegar a la pantalla de perfil o mostrar un diálogo/menú
                             navController.navigate(Screen.Profile.route) {
                                 launchSingleTop = true
                             }
@@ -102,6 +118,7 @@ fun DashboardScreen() {
                         }
                     }
                 )
+
             },
             bottomBar = {
                 NavigationBar {
