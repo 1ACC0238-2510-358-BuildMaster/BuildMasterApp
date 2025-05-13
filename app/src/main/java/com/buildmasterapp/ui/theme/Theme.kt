@@ -1,5 +1,6 @@
 package com.buildmasterapp.ui.theme
 
+import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -7,34 +8,39 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import androidx.compose.material3.Typography
 
-private val BuildMasterDarkColorScheme = darkColorScheme(
-    primary = Color(0xFF00B253),       // Verde Tecla
-    secondary = Color(0xFF333333),     // Gris Oscuro
-    tertiary = Color(0xFFF5F5F5),      // Gris Claro
-    background = Color(0xFF000000),    // Negro si es dark theme
-    surface = Color(0xFF333333),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.Black
+private val DarkColorScheme = darkColorScheme(
+    primary = DarkPrimary,
+    onPrimary = DarkOnPrimary,
+    primaryContainer = DarkPrimaryContainer,
+    onPrimaryContainer = DarkOnPrimaryContainer,
+    secondary = PurpleGrey80, // Ajusta según necesites
+    tertiary = Pink80         // Ajusta según necesites
+    // Define el resto de los colores para el tema oscuro
 )
 
-private val BuildMasterLightColorScheme = lightColorScheme(
-    primary = Color(0xFF00B253),       // Verde Tecla
-    secondary = Color(0xFF333333),     // Gris Oscuro
-    tertiary = Color(0xFFF5F5F5),      // Gris Claro
-    background = Color(0xFFFFFFFF),    // Blanco
-    surface = Color(0xFFF5F5F5),
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onTertiary = Color.Black
+private val LightColorScheme = lightColorScheme(
+    primary = LightPrimary,
+    onPrimary = LightOnPrimary,
+    primaryContainer = LightPrimaryContainer,
+    onPrimaryContainer = LightOnPrimaryContainer,
+    secondary = PurpleGrey40, // Ajusta según necesites
+    tertiary = Pink40         // Ajusta según necesites
+    // Define el resto de los colores para el tema claro
 )
 
 @Composable
-fun BuildMasterAppTheme(
+fun BuildMasterTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -46,13 +52,21 @@ fun BuildMasterAppTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> BuildMasterDarkColorScheme
-        else -> BuildMasterLightColorScheme
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = BuildMasterTypography,
+        typography = typography,
         content = content
     )
 }
