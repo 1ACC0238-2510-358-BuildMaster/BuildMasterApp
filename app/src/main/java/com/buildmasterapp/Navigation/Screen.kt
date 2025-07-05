@@ -19,7 +19,6 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
 
     // Para el Navigation Drawer (sin íconos en la definición de ruta principal)
     object Profile : Screen("profile", R.string.profile)
-    object Registration : Screen("register", R.string.register)
     object Settings : Screen("settings", R.string.settings)
     object Language : Screen("language", R.string.language)
     object Support : Screen("support", R.string.support)
