@@ -45,7 +45,11 @@ fun CommunityScreen(
         NewPostInputDialog(
             onDismissRequest = { communityViewModel.dismissNewPostDialog() },
             onConfirm = { content ->
-                communityViewModel.submitNewPost(content)
+                // Aquí puedes pedir también el título si tu diálogo lo soporta
+                communityViewModel.publishPost(
+                    title = "Nuevo post", // Cambia esto si tu diálogo pide título
+                    content = content
+                )
             }
         )
     }
@@ -57,7 +61,10 @@ fun CommunityScreen(
                 postAuthor = authorName,
                 onDismissRequest = { communityViewModel.dismissCommentDialog() },
                 onConfirm = { commentText ->
-                    communityViewModel.addCommentToPost(postId, commentText)
+                    // postId es String, pero el método espera Int
+                    postId.toIntOrNull()?.let { intId ->
+                        communityViewModel.commentOnPost(intId, commentText)
+                    }
                 }
             )
         }
@@ -80,7 +87,7 @@ fun CommunityScreen(
         CommunityScreenContent(
             modifier = Modifier.padding(paddingValues),
             uiState = uiState,
-            viewModel = communityViewModel
+            communityViewModel = communityViewModel
         )
     }
 }
@@ -89,7 +96,7 @@ fun CommunityScreen(
 fun CommunityScreenContent(
     modifier: Modifier = Modifier,
     uiState: CommunityUiState,
-    viewModel: CommunityViewModel
+    communityViewModel: CommunityViewModel
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         if (uiState.isLoading) {
@@ -113,10 +120,10 @@ fun CommunityScreenContent(
                 items(uiState.posts, key = { it.id }) { post ->
                     PostCard(
                         post = post,
-                        onLikeClicked = { viewModel.toggleLike(post.id) },
-                        onDislikeClicked = { viewModel.toggleDislike(post.id) },
-                        onCommentClicked = { viewModel.openCommentDialog(post.id) }, // Abre el diálogo
-                        onRepostClicked = { viewModel.repost(post.id) }
+                        onLikeClicked = { post.id.toIntOrNull()?.let { communityViewModel.likePost(it) } },
+                        onDislikeClicked = { post.id.toIntOrNull()?.let { communityViewModel.dislikePost(it) } },
+                        onCommentClicked = { communityViewModel.openCommentDialog(post.id) },
+                        onRepostClicked = { post.id.toIntOrNull()?.let { communityViewModel.repost(it) } }
                     )
                 }
             }

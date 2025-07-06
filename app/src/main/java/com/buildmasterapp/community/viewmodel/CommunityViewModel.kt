@@ -1,10 +1,18 @@
 package com.buildmasterapp.community.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.buildmasterapp.R
+import com.buildmasterapp.community.data.CommunityRepository
 import com.buildmasterapp.community.data.model.Comment
+import com.buildmasterapp.community.data.model.CreateCommentRequest
+import com.buildmasterapp.community.data.model.CreatePostRequest
+import com.buildmasterapp.community.data.model.NetworkPost
 import com.buildmasterapp.community.data.model.PostItem
+import com.buildmasterapp.user.data.UserTokenProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,8 +21,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
-
-
 
 // por el momento el front es local falta implementar el usuario que es otra bc user
 data class CommunityUiState(
@@ -30,7 +36,8 @@ sealed class CommunityUserEvent {
     data class ShowSnackbar(val message: String) : CommunityUserEvent()
 }
 
-class CommunityViewModel : ViewModel() {
+class CommunityViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository: CommunityRepository
 
     private val _uiState = MutableStateFlow(CommunityUiState())
     val uiState: StateFlow<CommunityUiState> = _uiState.asStateFlow()
@@ -39,122 +46,117 @@ class CommunityViewModel : ViewModel() {
     val eventFlow = _eventChannel.receiveAsFlow()
 
     init {
+        val tokenProvider = UserTokenProvider(application.applicationContext)
+        repository = CommunityRepository(tokenProvider)
         loadPosts()
     }
 
+    // Cargar posts desde el backend
     private fun loadPosts() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            kotlinx.coroutines.delay(500)
-            _uiState.update {
-                it.copy(posts = PostItem.getSamplePosts().sortedByDescending { post -> post.timestamp }, isLoading = false)
-            }
-        }
-    }
-
-    fun toggleLike(postId: String) {
-        _uiState.update { currentState ->
-            val updatedPosts = currentState.posts.map { post ->
-                if (post.id == postId) {
-                    val currentlyLiked = post.isLikedByCurrentUser
-                    val currentlyDisliked = post.isDislikedByCurrentUser
-                    post.copy(
-                        likes = if (currentlyLiked) post.likes - 1 else post.likes + 1,
-                        isLikedByCurrentUser = !currentlyLiked,
-                        dislikes = if (!currentlyLiked && currentlyDisliked) post.dislikes -1 else post.dislikes,
-                        isDislikedByCurrentUser = if (!currentlyLiked && currentlyDisliked) false else post.isDislikedByCurrentUser
-                    )
-                } else post
-            }
-            currentState.copy(posts = updatedPosts)
-        }
-    }
-
-    fun toggleDislike(postId: String) {
-        _uiState.update { currentState ->
-            val updatedPosts = currentState.posts.map { post ->
-                if (post.id == postId) {
-                    val currentlyDisliked = post.isDislikedByCurrentUser
-                    val currentlyLiked = post.isLikedByCurrentUser
-                    post.copy(
-                        dislikes = if (currentlyDisliked) post.dislikes - 1 else post.dislikes + 1,
-                        isDislikedByCurrentUser = !currentlyDisliked,
-                        likes = if (!currentlyDisliked && currentlyLiked) post.likes - 1 else post.likes,
-                        isLikedByCurrentUser = if (!currentlyDisliked && currentlyLiked) false else post.isLikedByCurrentUser
-                    )
-                } else post
-            }
-            currentState.copy(posts = updatedPosts)
-        }
-    }
-
-    // Modificado para añadir el comentario al post
-    fun addCommentToPost(postId: String, commentText: String) {
-        if (commentText.isBlank()) {
-            dismissCommentDialog() // Cierra el diálogo si el comentario está vacío
-            return
-        }
-        _uiState.update { currentState ->
-            val updatedPosts = currentState.posts.map { post ->
-                if (post.id == postId) {
-                    val newComment = Comment(
-                        author = "ErnestGreenhouse", // Usar el nombre del usuario actual
-                        text = commentText
-                    )
-                    // Crear una nueva lista de comentarios para forzar la recomposición
-                    val newCommentsList = post.comments.toMutableList().apply { add(newComment) }
-                    post.copy(comments = newCommentsList)
-                } else {
-                    post
-                }
-            }
-            // Cierra el diálogo después de añadir el comentario
-            currentState.copy(posts = updatedPosts, commentingPostId = null, authorOfCommentingPost = null)
-        }
-        viewModelScope.launch {
-            _eventChannel.send(CommunityUserEvent.ShowSnackbar("Comentario añadido"))
-        }
-    }
-
-    fun repost(postId: String) {
-        _uiState.update { currentState ->
-            val updatedPosts = currentState.posts.map {
-                if (it.id == postId) it.copy(repostsCount = it.repostsCount + 1) else it
-            }
-            currentState.copy(posts = updatedPosts)
-        }
-        viewModelScope.launch {
-            _eventChannel.send(CommunityUserEvent.ShowSnackbar("Post reposteado (simulado)"))
-        }
-    }
-
-    fun openNewPostDialog() {
-        _uiState.update { it.copy(showNewPostDialog = true) }
-    }
-
-    fun dismissNewPostDialog() {
-        _uiState.update { it.copy(showNewPostDialog = false) }
-    }
-
-    fun submitNewPost(content: String) {
-        if (content.isNotBlank()) {
-            val newPost = PostItem(
-                authorName = "ErnestGreenhouse",
-                authorAvatarRes = R.drawable.ic_avatar_placeholder_1,
-                content = content,
-                timestamp = System.currentTimeMillis()
-            )
-            _uiState.update { currentState ->
-                currentState.copy(
-                    posts = (listOf(newPost) + currentState.posts).sortedByDescending { it.timestamp },
-                    showNewPostDialog = false
+            val response = repository.getPosts()
+            if (response.isSuccessful) {
+                val posts = response.body() ?: emptyList()
+                // Workaround: Mapa manual de user_id a username
+                val userIdToUsername = mapOf(
+                    3 to "userprueba1",
+                    4 to "userprueba3"
                 )
+                // Mapeo de NetworkPost a PostItem para la UI usando el username del mapa
+                val postItems = posts.map { networkPost ->
+                    PostItem(
+                        id = networkPost.id.toString(),
+                        authorName = userIdToUsername[networkPost.user_id] ?: "Usuario ${networkPost.user_id}",
+                        authorAvatarRes = R.drawable.ic_avatar_placeholder_1,
+                        timestamp = System.currentTimeMillis(),
+                        content = networkPost.content,
+                        likes = networkPost.likes_count,
+                        dislikes = networkPost.dislikes_count,
+                        repostsCount = 0,
+                        isLikedByCurrentUser = false,
+                        isDislikedByCurrentUser = false,
+                        comments = networkPost.comments.map { c ->
+                            Comment(
+                                id = c.id.toString(),
+                                author = userIdToUsername[c.user_id] ?: "Usuario ${c.user_id}",
+                                text = c.content,
+                                timestamp = System.currentTimeMillis()
+                            )
+                        }.toMutableList()
+                    )
+                }
+                _uiState.update { it.copy(posts = postItems, isLoading = false, error = null) }
+            } else {
+                _uiState.update { it.copy(isLoading = false, error = "Error al cargar posts") }
             }
-            viewModelScope.launch {
-                _eventChannel.send(CommunityUserEvent.ShowSnackbar("Nuevo post creado!"))
+        }
+    }
+
+    // Publicar un nuevo post
+    fun publishPost(title: String, content: String, mediaUrls: List<String> = emptyList()) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val request = CreatePostRequest(title, content, mediaUrls)
+            val response = repository.createPost(request)
+            if (response.isSuccessful) {
+                loadPosts() // Recarga los posts
+                _eventChannel.send(CommunityUserEvent.ShowSnackbar("¡Post publicado!"))
+            } else {
+                _uiState.update { it.copy(isLoading = false) }
+                _eventChannel.send(CommunityUserEvent.ShowSnackbar("Error al publicar post"))
             }
-        } else {
-            _uiState.update { it.copy(showNewPostDialog = false) }
+        }
+    }
+
+    // Comentar un post
+    fun commentOnPost(postId: Int, comment: String) {
+        viewModelScope.launch {
+            val request = CreateCommentRequest(comment)
+            val response = repository.commentPost(postId, request)
+            if (response.isSuccessful) {
+                loadPosts()
+                _eventChannel.send(CommunityUserEvent.ShowSnackbar("¡Comentario publicado!"))
+            } else {
+                _eventChannel.send(CommunityUserEvent.ShowSnackbar("Error al comentar"))
+            }
+        }
+    }
+
+    // Dar like a un post
+    fun likePost(postId: Int) {
+        viewModelScope.launch {
+            val response = repository.likePost(postId)
+            if (response.isSuccessful) {
+                loadPosts()
+            } else {
+                _eventChannel.send(CommunityUserEvent.ShowSnackbar("Error al dar like"))
+            }
+        }
+    }
+
+    // Dar dislike a un post
+    fun dislikePost(postId: Int) {
+        viewModelScope.launch {
+            val response = repository.dislikePost(postId)
+            if (response.isSuccessful) {
+                loadPosts()
+            } else {
+                _eventChannel.send(CommunityUserEvent.ShowSnackbar("Error al dar dislike"))
+            }
+        }
+    }
+
+    // Repostear un post
+    fun repost(postId: Int) {
+        viewModelScope.launch {
+            val response = repository.repost(postId)
+            if (response.isSuccessful) {
+                loadPosts()
+                _eventChannel.send(CommunityUserEvent.ShowSnackbar("¡Reposteado!"))
+            } else {
+                _eventChannel.send(CommunityUserEvent.ShowSnackbar("Error al repostear"))
+            }
         }
     }
 
@@ -166,5 +168,14 @@ class CommunityViewModel : ViewModel() {
 
     fun dismissCommentDialog() {
         _uiState.update { it.copy(commentingPostId = null, authorOfCommentingPost = null) }
+    }
+
+    // Funciones para manejar el diálogo de nuevo post
+    fun openNewPostDialog() {
+        _uiState.update { it.copy(showNewPostDialog = true) }
+    }
+
+    fun dismissNewPostDialog() {
+        _uiState.update { it.copy(showNewPostDialog = false) }
     }
 }
