@@ -7,11 +7,13 @@
     <string name="profile">Perfil</string>
     <string name="settings">Configuración</string>
     <string name="language">Idioma</string>
-    <string name="support">Soporte</string>
+    <string name="support">Glosario</string>
     <string name="logout">Cerrar Sesión</string>
     <string name="menu">Menú</string>
     <string name="user_profile">Perfil de Usuario</string>
     <string name="prices">Prices</string>
     <string name="app_logo">Logo de la aplicación</string>
-
+    <string name="glossary">Glosario</string>
+    <string name="glossary_title">Glosario de Términos y Consejos</string>
+    <string name="glossary_empty">No hay términos disponibles.</string>
 </resources>

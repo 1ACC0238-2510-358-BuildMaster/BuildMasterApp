@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -52,9 +53,10 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Screen.Profile.route) { GenericScreen(name = stringResource(id = Screen.Profile.titleResId)) }
         composable(Screen.Settings.route) { GenericScreen(name = stringResource(id = Screen.Settings.titleResId)) }
         composable(Screen.Language.route) { GenericScreen(name = stringResource(id = Screen.Language.titleResId)) }
-        composable(Screen.Support.route) { GenericScreen(name = stringResource(id = Screen.Support.titleResId)) }
+        composable(Screen.Glossary.route) { com.buildmasterapp.ui.screens.GlosaryScreen() }
         composable(Screen.Logout.route) {
-            GenericScreen(name = stringResource(id = Screen.Logout.titleResId))
+            // Aquí puedes limpiar el estado de autenticación y navegar a login
+            LogoutHandler(navController)
         }
     }
 }
@@ -63,5 +65,16 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
 fun GenericScreen(name: String) { // Esta función auxiliar se mantiene igual
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(text = "Pantalla: $name")
+    }
+}
+
+@Composable
+fun LogoutHandler(navController: NavHostController) {
+    // Aquí puedes limpiar cualquier estado de autenticación, tokens, etc.
+    // Luego navega a la pantalla de autenticación principal
+    LaunchedEffect(Unit) {
+        navController.navigate("auth") {
+            popUpTo(0) { inclusive = true }
+        }
     }
 }
