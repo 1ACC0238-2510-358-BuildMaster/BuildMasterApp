@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModel
 import com.buildmasterapp.ui.composables.DashboardScreen
 import com.buildmasterapp.ui.theme.BuildMasterTheme
+import com.buildmasterapp.user.presentation.AuthNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DashboardScreen()
+                    AuthNavHost()
                 }
             }
         }
