@@ -1,15 +1,18 @@
 package com.buildmasterapp.user.presentation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.buildmasterapp.R
 
 @Composable
 fun LoginScreen(
@@ -32,8 +35,16 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(32.dp)
         ) {
-            Text("Iniciar sesión", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(32.dp))
+            Text("BuildMaster App", style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(12.dp))
+            Image(
+                painter = painterResource(id = R.drawable.login),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .height(100.dp)  // ajusta tamaño a gusto
+                    .padding(bottom = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
