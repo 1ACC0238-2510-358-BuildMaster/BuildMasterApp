@@ -86,6 +86,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     //cargar imagener url
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")

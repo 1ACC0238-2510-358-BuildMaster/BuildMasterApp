@@ -73,51 +73,64 @@ fun Catalogue(
     val components: List<Component> by viewModel.components.collectAsState()
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
     val errorMessage: String? by viewModel.errorMessage.collectAsState()
-    val expanded = remember { mutableStateOf(false) }
-    LaunchedEffect(key1 = Unit) {
-        viewModel.loadComponents()
+
+    // Para test: filtra por categoría ID = 1 (real)
+    LaunchedEffect(Unit) {
+        val fakeCategoryId = 1L
+        viewModel.loadComponents(categoryId = fakeCategoryId)
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Catálogo de Componentes") }
+            )
+        },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("create") },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, "Agregar componente")
+            FloatingActionButton(onClick = { /* Navega a tu formulario de nuevo componente */ }) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar Componente")
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
             when {
-                isLoading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                else -> LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(8.dp)
-                ) {
-                    items(items = components) { component ->
-                        ComponentItem(
-                            component = component,
-                            onEditClick = { navController.navigate("edit/${component.id}") },
-                            onDeleteClick = {
-                                viewModel.deleteComponent(component.id ?: -1L) {}
-                            },
-                            onClick = { navController.navigate("details/${component.id}") }
-                        )
-                    }
+                isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-            }
-
-            if (!errorMessage.isNullOrEmpty()) {
-                Snackbar(
-                    modifier = Modifier.padding(8.dp),
-                    action = {
-                        Button(onClick = { viewModel.loadComponents() }) {
-                            Text("Reintentar")
+                !errorMessage.isNullOrEmpty() -> {
+                    Text(
+                        text = errorMessage ?: "Error desconocido",
+                        color = Color.Red,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                components.isEmpty() -> {
+                    Text(
+                        text = "No hay componentes para mostrar",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                else -> {
+                    LazyColumn(contentPadding = PaddingValues(8.dp)) {
+                        items(components) { component ->
+                            ComponentItem(
+                                component = component,
+                                onEditClick = {
+                                    // TODO: Navega a pantalla de edición
+                                },
+                                onDeleteClick = {
+                                    // TODO: Borra componente
+                                },
+                                onClick = {
+                                    // TODO: Navega a detalle si quieres
+                                }
+                            )
                         }
                     }
-                ) {
-                    Text(text = errorMessage.orEmpty())
                 }
             }
         }
@@ -350,16 +363,6 @@ fun ComponentFormScreen(
                                             formFactor = formFactor
                                         )
                                     )
-
-                                    if (componentId != null) {
-                                        viewModel.updateComponent(newComponent) {
-                                            navController.popBackStack()
-                                        }
-                                    } else {
-                                        viewModel.createComponent(newComponent) {
-                                            navController.popBackStack()
-                                        }
-                                    }
                                 }
                             }
                         },
@@ -377,6 +380,7 @@ fun ComponentFormScreen(
                         println("Enviando categoría con ID: ${selectedCategory?.id}")
                         println("Enviando fabricante con ID: ${selectedManufacturer?.id}")
                     }
+
                 }
             }
         }

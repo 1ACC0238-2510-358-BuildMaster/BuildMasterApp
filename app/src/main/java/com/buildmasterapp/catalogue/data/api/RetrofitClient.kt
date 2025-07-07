@@ -1,17 +1,28 @@
-package com.buildmasterapp.catalogue.data.api
-
+import com.buildmasterapp.catalogue.data.api.ComponentApi
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://backend-041m.onrender.com/swagger-ui/index.html/"
+    private const val BASE_URL = "https://backend-5l98.onrender.com/"
 
-    val instance: ComponentApi by lazy {
-        val retrofit = Retrofit.Builder()
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(loggingInterceptor)
+        .build()
+
+    val api: ComponentApi by lazy {
+        Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
-        retrofit.create(ComponentApi::class.java)
+            .create(ComponentApi::class.java)
     }
 }
+
+

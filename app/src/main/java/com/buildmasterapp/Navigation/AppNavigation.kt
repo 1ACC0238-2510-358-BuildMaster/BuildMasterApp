@@ -13,9 +13,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.buildmasterapp.catalogue.data.api.RetrofitClient
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModel
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModelFactory
+import com.buildmasterapp.catalogue.presentation.Catalogue
 import com.buildmasterapp.shared.navigation.Navigator
 import com.buildmasterapp.ui.screens.ChatScreen
 import com.buildmasterapp.ui.screens.HomeScreen
@@ -35,12 +35,14 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
 
         composable(Screen.PCConfig.route) {
             val context = LocalContext.current
-            val api = RetrofitClient.instance // o la instancia real según cómo lo implementaste
+            val api = RetrofitClient.api
             val factory = ComponentViewModelFactory(api)
-
             val componentViewModel: ComponentViewModel = viewModel(factory = factory)
-
-            Navigator(catalogueViewModel = componentViewModel)
+            Catalogue(
+                viewModel = componentViewModel,
+                navController = navController,
+                context = context
+            )
         }
         composable(Screen.Chat.route) { ChatScreen() }
 

@@ -1,5 +1,6 @@
 package com.buildmasterapp.catalogue.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.buildmasterapp.catalogue.data.api.ComponentApi
@@ -43,7 +44,7 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
             try {
                 // Carga en paralelo
                 val deferredResponses = awaitAll(
-                    async { api.getAllComponents() },
+                    async { api.getComponents() },
                     async { api.getCategories() },
                     async { api.getManufacturers() }
                 )
@@ -72,18 +73,31 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
     }
 
     // Carga solo los componentes
-    fun loadComponents() {
+    fun loadComponents(
+        name: String? = null,
+        type: String? = null,
+        categoryId: Long? = null,
+        manufacturerId: Long? = null
+    ) {
         viewModelScope.launch {
-            _isLoading.value = true
             try {
-                val response = api.getAllComponents()
+                _isLoading.value = true
+
+                val response = api.getComponents(
+                    name = name,
+                    type = type,
+                    categoryId = categoryId,
+                    manufacturerId = manufacturerId
+                )
+
                 if (response.isSuccessful) {
                     _components.value = response.body() ?: emptyList()
                 } else {
-                    _errorMessage.value = "Error cargando componentes: ${response.code()}"
+                    _errorMessage.value = "Error: ${response.code()}"
                 }
+
             } catch (e: Exception) {
-                _errorMessage.value = "Error cargando componentes: ${e.message}"
+                _errorMessage.value = "Error: ${e.localizedMessage ?: e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -127,117 +141,7 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
             }
         }
     }
-    @Serializable
-    data class ComponentCreateRequest(
-        val name: String,
-        val type: String,
-        val price: Double,
-        val categoryId: Long,
-        val manufacturerId: Long,
-        val specifications: Specifications
-    )
 
-    fun createComponent(component: Component, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                if (component.category.id == null || _categories.value.none { it.id == component.category.id }) {
-                    _errorMessage.value = "Seleccione una categoría válida"
-                    return@launch
-                }
-
-                if (component.manufacturer.id == null || _manufacturers.value.none { it.id == component.manufacturer.id }) {
-                    _errorMessage.value = "Seleccione un fabricante válido"
-                    return@launch
-                }
-
-                val createRequest = ComponentCreateRequest(
-                    name = component.name,
-                    type = component.type,
-                    price = component.price,
-                    categoryId = component.category.id,
-                    manufacturerId = component.manufacturer.id,
-                    specifications = component.specifications
-                )
-
-                val response = api.createComponent(createRequest)
-
-                if (response.isSuccessful) {
-                    loadComponents()
-                    onSuccess()
-                } else {
-                    _errorMessage.value = "Error al crear: ${response.errorBody()?.string()}"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Error de conexión: ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun updateComponent(component: Component, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                // Crea un DTO simple para la actualización
-                val updateRequest = ComponentUpdateRequest(
-                    id = component.id,
-                    name = component.name,
-                    type = component.type,
-                    price = component.price,
-                    categoryId = component.category.id, // Solo envía el ID
-                    manufacturerId = component.manufacturer.id, // Solo envía el ID
-                    specifications = component.specifications
-                )
-
-                val response = api.updateComponent(component.id ?: -1L, updateRequest)
-                if (response.isSuccessful) {
-                    loadComponents()
-                    onSuccess()
-                } else {
-                    _errorMessage.value = "Error al actualizar: ${response.errorBody()?.string()}"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Error: ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    // Añade esta data class
-    @Serializable
-    data class ComponentUpdateRequest(
-        val id: Long?,
-        val name: String,
-        val type: String,
-        val price: Double,
-        val categoryId: Long,  // Solo el ID
-        val manufacturerId: Long,  // Solo el ID
-        val specifications: Specifications
-    )
-
-    // Elimina un componente
-    fun deleteComponent(componentId: Long, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val response = api.deleteComponent(componentId)
-                /*if (response.isSuccessful) {
-                    _errorMessage.value = "Componente eliminado exitosamente"
-                    loadComponents() // Recarga la lista actualizada
-                    onSuccess()
-                } else {
-                    _errorMessage.value = "Error al eliminar: ${response.code()}"
-                }*/
-            } catch (e: Exception) {
-                _errorMessage.value = "Error: ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
     fun clearErrorMessage() {
         _errorMessage.value = null
     }
