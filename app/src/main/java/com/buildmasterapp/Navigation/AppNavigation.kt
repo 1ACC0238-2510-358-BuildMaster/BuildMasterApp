@@ -67,7 +67,8 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
             val buildId = backStackEntry.arguments?.getString("id")?.toLongOrNull() ?: -1L
             val context = LocalContext.current
             val api = RetrofitClient.api
-            BuildResultScreen(buildId = buildId, api = api)
+            BuildResultScreen(buildId = buildId, api = api,
+                navController = navController)
         }
 
         composable(Screen.Chat.route) { ChatScreen() }

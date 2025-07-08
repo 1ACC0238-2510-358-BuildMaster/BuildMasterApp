@@ -1,11 +1,14 @@
 package com.buildmasterapp.catalogue.presentation
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.buildmasterapp.catalogue.data.api.ComponentApi
 import com.buildmasterapp.catalogue.domain.model.BuildResult
 import kotlinx.coroutines.launch
@@ -14,7 +17,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun BuildResultScreen(
     buildId: Long,
-    api: ComponentApi
+    api: ComponentApi,
+    navController: NavController
 ) {
     val scope = rememberCoroutineScope()
     var result by remember { mutableStateOf<BuildResult?>(null) }
@@ -42,7 +46,12 @@ fun BuildResultScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Resultado de la Build") }
+                title = { Text("Resultado de la Build") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                    }
+                }
             )
         }
     ) { paddingValues ->

@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,6 +16,8 @@ import androidx.navigation.NavController
 import com.buildmasterapp.catalogue.data.api.ComponentApi
 import com.buildmasterapp.catalogue.domain.model.Build
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +63,12 @@ fun SavedBuildsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tus Builds Guardadas") }
+                title = { Text("Tus Builds Guardadas") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -101,13 +110,31 @@ fun SavedBuildsScreen(
                                 ) {
                                     Text("Build ID: ${build.id}", style = MaterialTheme.typography.titleMedium)
                                     Text("Componentes: ${build.componentIds.joinToString(", ")}")
-                                    Text("Creado en: ${build.createdAt}")
+                                    Text("Creado en: ${formatDate(build.createdAt)}")
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+fun formatDate(dateString: String): String {
+    return try {
+        val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault())
+        val date = parser.parse(dateString)
+        val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        formatter.format(date!!)
+    } catch (e: Exception) {
+        try {
+            // Si falla, intenta con milisegundos normales
+            val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
+            val date = parser.parse(dateString)
+            val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            formatter.format(date!!)
+        } catch (_: Exception) {
+            dateString // Si todo falla, devuélvelo crudo
         }
     }
 }
