@@ -5,7 +5,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Fastfood
+import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,12 +49,13 @@ fun CommunityScreen(
     if (uiState.showNewPostDialog) {
         NewPostInputDialog(
             onDismissRequest = { communityViewModel.dismissNewPostDialog() },
-            onConfirm = { content ->
-                // Aquí puedes pedir también el título si tu diálogo lo soporta
+            onConfirm = { title, content, mediaUrls ->
                 communityViewModel.publishPost(
-                    title = "Nuevo post", // Cambia esto si tu diálogo pide título
-                    content = content
+                    title = title,
+                    content = content,
+                    mediaUrls = mediaUrls
                 )
+                communityViewModel.dismissNewPostDialog() // Cerrar el diálogo después de publicar
             }
         )
     }
@@ -61,9 +67,9 @@ fun CommunityScreen(
                 postAuthor = authorName,
                 onDismissRequest = { communityViewModel.dismissCommentDialog() },
                 onConfirm = { commentText ->
-                    // postId es String, pero el método espera Int
                     postId.toIntOrNull()?.let { intId ->
                         communityViewModel.commentOnPost(intId, commentText)
+                        communityViewModel.dismissCommentDialog() // Cierra el diálogo al comentar
                     }
                 }
             )
@@ -75,7 +81,20 @@ fun CommunityScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Comunidad BuildMaster") }
+                navigationIcon = {
+                    IconButton(onClick = { /* perfil */ }) {
+                        Icon(Icons.Filled.AccountCircle, contentDescription = "Avatar de usuario")
+                    }
+                },
+                title = { Text("Comunidad BuildMaster") },
+                actions = {
+                    IconButton(onClick = { /* buscar */ }) {
+                        Icon(Icons.Filled.Search, contentDescription = "Buscar")
+                    }
+                    IconButton(onClick = { /* notificaciones */ }) {
+                        Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones")
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -84,11 +103,20 @@ fun CommunityScreen(
             }
         }
     ) { paddingValues ->
-        CommunityScreenContent(
-            modifier = Modifier.padding(paddingValues),
-            uiState = uiState,
-            communityViewModel = communityViewModel
-        )
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Contenido del feed
+            CommunityScreenContent(
+                modifier = Modifier.fillMaxSize(),
+                uiState = uiState,
+                communityViewModel = communityViewModel
+            )
+        }
     }
 }
 

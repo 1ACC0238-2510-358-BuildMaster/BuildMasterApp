@@ -22,3 +22,11 @@ val DarkOnPrimary = Color(0xFF381E72)
 val DarkPrimaryContainer = Color(0xFF4F378B)
 val DarkOnPrimaryContainer = Color(0xFFEADDFF)
 // ...otros colores para el tema oscuro
+
+// Feed and UI custom colors
+val BackgroundColor = Color(0xFF1A1A1A)
+val CardBackgroundColor = Color(0xFF282828)
+val TextColorPrimary = Color(0xFFFFFFFF)
+val TextColorSecondary = Color(0xFFB0B0B0)
+val AccentColor = Color(0xFFFF5733)
+val IconColor = Color(0xFFFFFFFF)

@@ -11,9 +11,11 @@ import androidx.compose.ui.window.Dialog
 @Composable
 fun NewPostInputDialog(
     onDismissRequest: () -> Unit,
-    onConfirm: (String) -> Unit
+    onConfirm: (String, String, List<String>) -> Unit
 ) {
-    var postText by remember { mutableStateOf("") }
+    var postTitle by remember { mutableStateOf("") }
+    var postContent by remember { mutableStateOf("") }
+    var mediaUrls by remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
@@ -28,11 +30,25 @@ fun NewPostInputDialog(
                 Text("Crear Nuevo Post", style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
-                    value = postText,
-                    onValueChange = { postText = it },
-                    label = { Text("¿Qué estás pensando?") },
+                    value = postTitle,
+                    onValueChange = { postTitle = it },
+                    label = { Text("Título") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = postContent,
+                    onValueChange = { postContent = it },
+                    label = { Text("Contenido") },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
                     maxLines = 5
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = mediaUrls,
+                    onValueChange = { mediaUrls = it },
+                    label = { Text("URLs de medios (separados por comas)") },
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
@@ -45,9 +61,10 @@ fun NewPostInputDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            onConfirm(postText)
+                            val mediaList = mediaUrls.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                            onConfirm(postTitle, postContent, mediaList)
                         },
-                        enabled = postText.isNotBlank()
+                        enabled = postTitle.isNotBlank() && postContent.isNotBlank()
                     ) {
                         Text("Postear")
                     }

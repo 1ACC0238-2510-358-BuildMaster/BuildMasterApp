@@ -65,7 +65,7 @@ fun BuildMasterTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = typography,
+        typography = BuildMasterTypography,
         content = content
     )
 }

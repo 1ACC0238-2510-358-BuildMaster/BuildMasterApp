@@ -91,6 +91,7 @@ dependencies {
     //cargar imagener url
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
+    implementation("io.coil-kt:coil-compose:2.4.0") // Agregar Coil para cargar imágenes
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
