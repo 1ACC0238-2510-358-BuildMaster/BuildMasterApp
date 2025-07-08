@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModel
@@ -25,9 +26,19 @@ fun BuildScreen(
     val selectedComponents by viewModel.selectedComponents.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.loadCategories()
+
+        val sharedPrefs = context.getSharedPreferences(
+            "my_prefs",
+            android.content.Context.MODE_PRIVATE
+        )
+        val lastBuildId = sharedPrefs.getLong("latest_build_id", -1L)
+        if (lastBuildId != -1L) {
+            println("ℹ️ Última Build ID guardada: $lastBuildId")
+        }
     }
 
     Scaffold(
@@ -52,7 +63,7 @@ fun BuildScreen(
                                 )
                             }
                         } else {
-                            viewModel.saveBuild()
+                            viewModel.saveBuild(context)
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     "Build guardado correctamente."

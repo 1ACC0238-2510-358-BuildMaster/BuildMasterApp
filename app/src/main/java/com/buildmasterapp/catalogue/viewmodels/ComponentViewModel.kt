@@ -1,5 +1,6 @@
 package com.buildmasterapp.catalogue.viewmodels
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -158,7 +159,7 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
         _selectedComponents.value = emptyMap()
     }
 
-    fun saveBuild() {
+    fun saveBuild(context: Context) {
         val componentIds = _selectedComponents.value.values.mapNotNull { it.id }
         println("POST: $componentIds")
 
@@ -166,7 +167,19 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
             try {
                 val response = api.createBuild(BuildCreateRequest(componentIds))
                 if (response.isSuccessful) {
-                    println("✅ Build creada correctamente: ${response.body()}")
+                    val build = response.body()
+                    println("✅ Build creada correctamente: $build")
+
+                    build?.let {
+                        // 🟢 Guarda la nueva ID acumulando las existentes
+                        val sharedPrefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
+                        val existing = sharedPrefs.getStringSet("saved_build_ids", emptySet())?.toMutableSet() ?: mutableSetOf()
+                        existing.add(it.id.toString())
+                        sharedPrefs.edit().putStringSet("saved_build_ids", existing).apply()
+
+                        println("📌 IDs guardadas ahora: $existing")
+                    }
+
                 } else {
                     println("❌ Error al crear build: ${response.code()} - ${response.message()}")
                 }
@@ -178,7 +191,11 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
         }
     }
 
-
+    private fun saveBuildIdToPrefs(context: Context, buildId: Long) {
+        val sharedPrefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putLong("latest_build_id", buildId).apply()
+        println("💾 ID guardado en SharedPreferences: $buildId")
+    }
 
     fun deleteBuild(id: Long) {
         viewModelScope.launch {
