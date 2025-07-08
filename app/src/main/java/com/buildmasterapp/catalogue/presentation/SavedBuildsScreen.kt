@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -61,6 +62,7 @@ fun SavedBuildsScreen(
     }
 
     Scaffold(
+        containerColor = Color(0xFFF5F5F5),
         topBar = {
             TopAppBar(
                 title = { Text("Tus Builds Guardadas") },
@@ -68,7 +70,12 @@ fun SavedBuildsScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF495D92),
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -76,19 +83,45 @@ fun SavedBuildsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+                .padding(16.dp)
         ) {
             when {
                 isLoading -> {
-                    CircularProgressIndicator()
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Cargando Builds...")
+                    }
                 }
+
                 errorMessage != null -> {
-                    Text(errorMessage!!)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = errorMessage!!,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
+
                 builds.isEmpty() -> {
-                    Text("No hay Builds disponibles.")
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No hay Builds disponibles.",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
+
                 else -> {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -98,19 +131,31 @@ fun SavedBuildsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        // Navega al resultado de esta build específica
                                         navController.navigate("build_result/${build.id}")
                                     },
+                                elevation = CardDefaults.cardElevation(6.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                                 )
                             ) {
                                 Column(
                                     modifier = Modifier.padding(16.dp)
                                 ) {
-                                    Text("Build ID: ${build.id}", style = MaterialTheme.typography.titleMedium)
-                                    Text("Componentes: ${build.componentIds.joinToString(", ")}")
-                                    Text("Creado en: ${formatDate(build.createdAt)}")
+                                    Text(
+                                        text = "Build ID: ${build.id}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(
+                                        text = "Componentes: ${build.componentIds.joinToString(", ")}",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(
+                                        text = "Creado en: ${formatDate(build.createdAt)}",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
                                 }
                             }
                         }

@@ -1,12 +1,18 @@
 package com.buildmasterapp.catalogue.presentation
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.buildmasterapp.catalogue.data.api.ComponentApi
@@ -33,10 +39,10 @@ fun BuildResultScreen(
                 if (response.isSuccessful) {
                     result = response.body()
                 } else {
-                    errorMessage = "Error: ${response.code()} - ${response.message()}"
+                    errorMessage = "No se pudo cargar los resultados (Error ${response.code()})"
                 }
             } catch (e: Exception) {
-                errorMessage = "Excepción: ${e.localizedMessage}"
+                errorMessage = "Error de conexión: ${e.localizedMessage}"
             } finally {
                 isLoading = false
             }
@@ -44,14 +50,20 @@ fun BuildResultScreen(
     }
 
     Scaffold(
+        containerColor = Color(0xFFF5F5F5),
         topBar = {
             TopAppBar(
-                title = { Text("Resultado de la Build") },
+                title = { Text("Detalles de la Build") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF495D92),
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -59,43 +71,138 @@ fun BuildResultScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
         ) {
             when {
                 isLoading -> {
-                    CircularProgressIndicator()
-                }
-                errorMessage != null -> {
-                    Text(errorMessage!!)
-                }
-                result != null -> {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        elevation = CardDefaults.cardElevation(4.dp)
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text(
-                                text = "Build ID: ${result!!.buildId}",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text("Rendimiento estimado: ${result!!.estimatedPerformance}")
-                            Text("Consumo energético: ${result!!.powerConsumptionWatts} W")
-                            Text("Precio estimado: $${result!!.estimatedPrice}")
-                            Text("Observaciones: ${result!!.observations}")
-                        }
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Cargando resultados...")
                     }
                 }
+
+                errorMessage != null -> {
+                    ErrorMessage(message = errorMessage!!)
+                }
+
+                result != null -> {
+                    BuildResultDetails(result = result!!)
+                }
+
                 else -> {
-                    Text("No se encontró resultado para esta Build.")
+                    ErrorMessage(message = "No se encontraron resultados")
                 }
             }
         }
+    }
+}
+
+@Composable
+fun BuildResultDetails(result: BuildResult) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Resumen de la Build",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    InfoRow(label = "ID de Build:", value = result.buildId.toString())
+                    InfoRow(label = "Rendimiento:", value = result.estimatedPerformance)
+                    InfoRow(label = "Consumo energético:", value = "${result.powerConsumptionWatts} W")
+                    InfoRow(label = "Precio estimado:", value = "$${result.estimatedPrice}")
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Observaciones:",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = result.observations,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
+
+        item {
+            FilledTonalButton(
+                onClick = { /* Acción compartir */ },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.filledTonalButtonColors(
+                    containerColor = Color(0xFF4CAF50),
+                    contentColor = Color.White
+                )
+            ) {
+                Icon(Icons.Default.Save, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Compartir esta Build")
+            }
+        }
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.width(150.dp)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+@Composable
+fun ErrorMessage(message: String) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = "Error",
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(48.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        )
     }
 }

@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,49 +44,72 @@ fun BuildScreen(
             println("ℹ️ Última Build ID guardada: $lastBuildId")
         }
     }
-
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("Configura tu Build") }
+                title = { Text("Configura tu Build") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF495D92),
+                    titleContentColor = Color.White
+                )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = {
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.padding(bottom = 60.dp)
+        bottomBar = {
+            BottomAppBar(
+                containerColor = Color(0xFFF5F5F5),
+                tonalElevation = 8.dp,
+                modifier = Modifier.height(80.dp) // Altura fija para los botones
             ) {
-                FloatingActionButton(
-                    onClick = {
-                        if (selectedComponents.size < 8) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "Selecciona al menos 8 componentes antes de guardar."
-                                )
-                            }
-                        } else {
-                            viewModel.saveBuild(context)
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "Build guardado correctamente."
-                                )
-                            }
-                        }
-                    },
-                    containerColor = Color(0xFF4CAF50)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.End, // Alineación a la derecha
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Guardar Build", color = Color.White)
-                }
+                    // Botón "Guardar Build"
+                    FilledTonalButton(
+                        onClick = {
+                            if (selectedComponents.size < 8) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "Selecciona al menos 8 componentes antes de guardar."
+                                    )
+                                }
+                            } else {
+                                viewModel.saveBuild(context)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "Build guardado correctamente."
+                                    )
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = Color(0xFF4CAF50),
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Icon(Icons.Default.Save, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Guardar Build")
+                    }
 
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate("saved_builds")
-                    },
-                    containerColor = Color(0xFF2196F3)
-                ) {
-                    Text("Ver Builds", color = Color.White)
+                    // Botón "Ver Builds"
+                    FilledTonalButton(
+                        onClick = { navController.navigate("saved_builds") },
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = Color(0xFF495D92),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(Icons.Default.Visibility, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Ver Builds")
+                    }
                 }
             }
         }
@@ -92,7 +119,7 @@ fun BuildScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // 🟢 Sección superior: Resetear selección
+            // Sección superior "Resetear"
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -108,51 +135,38 @@ fun BuildScreen(
                         onClick = { viewModel.resetBuild() },
                         colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
                     ) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Resetear")
+                        Spacer(Modifier.width(4.dp))
                         Text("Resetear")
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // 🟢 Grid de categorías
-            if (categories.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(categories) { category ->
-                        val isSelected = selectedComponents.containsKey(category.id)
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(80.dp)
-                                .padding(4.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (isSelected) Color(0xFF4CAF50) else Color.White,
-                                contentColor = if (isSelected) Color.White else Color.Black
-                            ),
-                            onClick = {
-                                navController.navigate("catalogue/${category.id}")
-                            }
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                Text(
-                                    text = category.name,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
+            // Grid de categorías
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .weight(1f),  // ✅ Asegura que el grid ocupe todo el espacio disponible
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(categories) { category ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp),
+                        onClick = { navController.navigate("catalogue/${category.id}") },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (selectedComponents.containsKey(category.id))
+                                Color(0xFF4CAF50) else Color.White
+                        )
+                    ) {
+                        Text(
+                            text = category.name,
+                            modifier = Modifier.fillMaxSize().wrapContentSize(),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
             }
