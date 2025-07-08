@@ -76,8 +76,8 @@ fun CommunityScreen(
         }
     }
 
-
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
@@ -94,29 +94,25 @@ fun CommunityScreen(
                     IconButton(onClick = { /* notificaciones */ }) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones")
                     }
-                }
+                },
+                windowInsets = WindowInsets(0, 0, 0, 0)
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { communityViewModel.openNewPostDialog() }) {
                 Icon(Icons.Filled.Add, contentDescription = "Crear nuevo post")
             }
-        }
+        },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
-        Column(
+        // Contenido del feed sin el Column innecesario que centraba todo
+        CommunityScreenContent(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Contenido del feed
-            CommunityScreenContent(
-                modifier = Modifier.fillMaxSize(),
-                uiState = uiState,
-                communityViewModel = communityViewModel
-            )
-        }
+                .fillMaxSize()
+                .padding(paddingValues),
+            uiState = uiState,
+            communityViewModel = communityViewModel
+        )
     }
 }
 
