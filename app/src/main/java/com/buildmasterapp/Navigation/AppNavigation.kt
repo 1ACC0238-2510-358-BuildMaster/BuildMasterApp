@@ -7,13 +7,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.buildmasterapp.catalogue.presentation.BuildResultScreen
 import com.buildmasterapp.catalogue.presentation.BuildScreen
 import com.buildmasterapp.catalogue.presentation.Catalogue
+import com.buildmasterapp.catalogue.presentation.SavedBuildsScreen
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModel
 import com.buildmasterapp.catalogue.viewmodels.ComponentViewModelFactory
 import com.buildmasterapp.ui.screens.ChatScreen
@@ -34,7 +37,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         modifier = modifier
     ) {
         composable(Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
 
         composable(Screen.PCConfig.route) {
@@ -52,6 +55,20 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
                 navController = navController,
                 categoryId = categoryId
             )
+        }
+        composable("saved_builds") {
+            SavedBuildsScreen(
+                api = api,
+                navController = navController
+            )
+        }
+
+        composable("build_result/{id}") { backStackEntry ->
+            val buildId = backStackEntry.arguments?.getString("id")?.toLongOrNull() ?: -1L
+            val context = LocalContext.current
+            val api = RetrofitClient.api
+            BuildResultScreen(buildId = buildId, api = api,
+                navController = navController)
         }
 
         composable(Screen.Chat.route) { ChatScreen() }

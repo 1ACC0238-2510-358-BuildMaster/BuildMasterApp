@@ -30,13 +30,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavHostController
+import com.buildmasterapp.Navigation.Screen
 import com.buildmasterapp.R // Asegúrate de que este es el R correcto de tu proyecto
 import com.buildmasterapp.ui.theme.BuildMasterTheme // Asegúrate de que este es tu tema
 
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController) {
     var titleVisible by remember { mutableStateOf(false) }
     var taglineVisible by remember { mutableStateOf(false) }
     var buttonVisible by remember { mutableStateOf(false) }
@@ -128,7 +130,7 @@ fun HomeScreen() {
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Video de YouTube con reproducción automática
 
@@ -148,7 +150,7 @@ fun HomeScreen() {
                     .height(200.dp)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Botón de acción
             AnimatedVisibility(
@@ -157,7 +159,7 @@ fun HomeScreen() {
                 exit = fadeOut(animationSpec = tween(500))
             ) {
                 Button(
-                    onClick = { /* Acción del botón */ },
+                    onClick = { navController.navigate(Screen.PCConfig.route)  },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -167,7 +169,10 @@ fun HomeScreen() {
                 ) {
                     Text(
                         text = "Comenzar Configuración",
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
                     )
                 }
             }
