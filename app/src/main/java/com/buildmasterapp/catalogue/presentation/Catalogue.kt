@@ -43,11 +43,13 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
@@ -58,15 +60,16 @@ import androidx.compose.ui.unit.sp
 fun Catalogue(
     viewModel: ComponentViewModel,
     navController: NavHostController,
-    context: android.content.Context = LocalContext.current
+    categoryId: Long,
+    context: android.content.Context = LocalContext.current,
 ) {
+    val selectedComponents by viewModel.selectedComponents.collectAsState()
     val components: List<Component> by viewModel.components.collectAsState()
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
     val errorMessage: String? by viewModel.errorMessage.collectAsState()
 
-    LaunchedEffect(Unit) {
-        val fakeCategoryId = 1L
-        viewModel.loadComponents(categoryId = fakeCategoryId)
+    LaunchedEffect(categoryId) {
+        viewModel.loadComponents(categoryId = categoryId)
     }
     var selectedType by remember { mutableStateOf<String?>(null) }
     var selectedManufacturer by remember { mutableStateOf<String?>(null) }
@@ -81,7 +84,12 @@ fun Catalogue(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Catálogo de Componentes") }
+                title = { Text("Catálogo de Componentes") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Atrás")
+                    }
+                }
             )
         },
     ) { paddingValues ->
@@ -185,14 +193,23 @@ fun Catalogue(
                     else -> {
                         LazyColumn(contentPadding = PaddingValues(8.dp)) {
                             items(filteredComponents) { component ->
+                                val selected = selectedComponents[component.category.id]
+                                val isSelected = selected?.id == component.id
+
                                 ComponentItem(
                                     component = component,
+                                    isSelected = isSelected,
                                     onClick = {
-                                        // Aquí puedes abrir detalles o acción
+                                        if (isSelected) {
+                                            viewModel.removeComponent(component.category.id)
+                                        } else {
+                                            viewModel.selectComponent(component.category.id, component)
+                                        }
                                     }
                                 )
                             }
                         }
+
                     }
                 }
             }
@@ -202,6 +219,7 @@ fun Catalogue(
 @Composable
 fun ComponentItem(
     component: Component,
+    isSelected: Boolean,
     onClick: () -> Unit
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -211,12 +229,12 @@ fun ComponentItem(
             .fillMaxWidth()
             .padding(8.dp)
             .combinedClickable(
-                onClick = {}, // Deshabilitado
+                onClick = onClick,
                 onLongClick = { expanded.value = !expanded.value }
             ),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF5F5F5),
-            contentColor = Color.Black
+            containerColor = if (isSelected) Color(0xFF4CAF50) else Color(0xFFF5F5F5),
+            contentColor = if (isSelected) Color.White else Color.Black
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {

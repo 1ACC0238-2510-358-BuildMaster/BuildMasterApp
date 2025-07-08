@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.buildmasterapp.catalogue.data.api.ComponentApi
+import com.buildmasterapp.catalogue.domain.model.BuildCreateRequest
 import com.buildmasterapp.catalogue.domain.model.Category
 import com.buildmasterapp.catalogue.domain.model.Component
 import com.buildmasterapp.catalogue.domain.model.Manufacturer
-import com.buildmasterapp.catalogue.domain.model.Specifications
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,48 +16,50 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
-    // Estado para componentes
+    // ✅ Estado para componentes
     private val _components = MutableStateFlow<List<Component>>(emptyList())
     val components: StateFlow<List<Component>> = _components
 
-    // Estado para categorías (dropdown)
+    // ✅ Estado para categorías
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories: StateFlow<List<Category>> = _categories
 
-    // Estado para fabricantes (dropdown)
+    // ✅ Estado para fabricantes
     private val _manufacturers = MutableStateFlow<List<Manufacturer>>(emptyList())
     val manufacturers: StateFlow<List<Manufacturer>> = _manufacturers
 
-    // Estado de carga
+    // ✅ Estado de carga
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // Estado para mensajes de error
+    // ✅ Estado para error
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    // Carga todos los datos iniciales (componentes, categorías y fabricantes)
+    // ✅ Estado para componentes seleccionados (Build)
+    private val _selectedComponents = MutableStateFlow<Map<Long, Component>>(emptyMap())
+    val selectedComponents: StateFlow<Map<Long, Component>> = _selectedComponents
+    // ----------------------------------------------------
+    // ✅ Métodos de carga
+    // ----------------------------------------------------
+
     fun loadInitialData(componentId: Long? = null) {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
             try {
-                // Carga en paralelo
                 val deferredResponses = awaitAll(
                     async { api.getComponents() },
                     async { api.getCategories() },
                     async { api.getManufacturers() }
                 )
 
-                // Procesa respuestas
                 val (componentsRes, categoriesRes, manufacturersRes) = deferredResponses
 
-                if (componentsRes.isSuccessful) _components.value = (componentsRes.body() ?: emptyList()) as List<Component>
-                if (categoriesRes.isSuccessful) _categories.value = (categoriesRes.body() ?: emptyList()) as List<Category>
-                if (manufacturersRes.isSuccessful) _manufacturers.value =
-                    (manufacturersRes.body() ?: emptyList()) as List<Manufacturer>
+                if (componentsRes.isSuccessful) _components.value = ((componentsRes.body() ?: emptyList()) as List<Component>)
+                if (categoriesRes.isSuccessful) _categories.value = ((categoriesRes.body() ?: emptyList()) as List<Category>)
+                if (manufacturersRes.isSuccessful) _manufacturers.value = ((manufacturersRes.body() ?: emptyList()) as List<Manufacturer>)
 
-                // Verifica errores individuales
                 listOf(componentsRes, categoriesRes, manufacturersRes).forEach { response ->
                     if (!response.isSuccessful) {
                         _errorMessage.value = "Error: ${response.code()} - ${response.errorBody()?.string()}"
@@ -72,7 +74,6 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
         }
     }
 
-    // Carga solo los componentes
     fun loadComponents(
         name: String? = null,
         type: String? = null,
@@ -82,7 +83,6 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-
                 val response = api.getComponents(
                     name = name,
                     type = type,
@@ -104,7 +104,6 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
         }
     }
 
-    // Carga solo las categorías
     fun loadCategories() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -123,7 +122,6 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
         }
     }
 
-    // Carga solo los fabricantes
     fun loadManufacturers() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -142,12 +140,118 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
         }
     }
 
+    // ----------------------------------------------------
+    // ✅ Métodos para Build
+    // ----------------------------------------------------
+
+    fun selectComponent(categoryId: Long, component: Component) {
+        _selectedComponents.value = _selectedComponents.value.toMutableMap().apply {
+            put(categoryId, component)
+        }
+    }
+    fun removeComponent(categoryId: Long) {
+        _selectedComponents.value = _selectedComponents.value.toMutableMap().apply {
+            remove(categoryId)
+        }
+    }
+    fun resetBuild() {
+        _selectedComponents.value = emptyMap()
+    }
+
+    fun saveBuild() {
+        val componentIds = _selectedComponents.value.values.mapNotNull { it.id }
+        println("POST: $componentIds")
+
+        viewModelScope.launch {
+            try {
+                val response = api.createBuild(BuildCreateRequest(componentIds))
+                if (response.isSuccessful) {
+                    println("✅ Build creada correctamente: ${response.body()}")
+                } else {
+                    println("❌ Error al crear build: ${response.code()} - ${response.message()}")
+                }
+            } catch (e: Exception) {
+                println("❌ Excepción al crear build: ${e.localizedMessage}")
+            } finally {
+                _selectedComponents.value = emptyMap()
+            }
+        }
+    }
+
+
+
+    fun deleteBuild(id: Long) {
+        viewModelScope.launch {
+            try {
+                val response = api.deleteBuild(id)
+                if (response.isSuccessful) {
+                    println("Build eliminada: $id")
+                } else {
+                    println("Error: ${response.errorBody()}")
+                }
+            } catch (e: Exception) {
+                println("Error eliminando build: ${e.message}")
+            }
+        }
+    }
+
+    fun getBuilds() {
+        viewModelScope.launch {
+            try {
+                val response = api.getBuilds()
+                if (response.isSuccessful) {
+                    println("Builds: ${response.body()}")
+                } else {
+                    println("Error: ${response.errorBody()}")
+                }
+            } catch (e: Exception) {
+                println("Error obteniendo builds: ${e.message}")
+            }
+        }
+    }
+
+    fun getBuildById(id: Long) {
+        viewModelScope.launch {
+            try {
+                val response = api.getBuildById(id)
+                if (response.isSuccessful) {
+                    println("Build: ${response.body()}")
+                } else {
+                    println("Error: ${response.errorBody()}")
+                }
+            } catch (e: Exception) {
+                println("Error obteniendo build: ${e.message}")
+            }
+        }
+    }
+
+    fun getBuildResult(id: Long) {
+        viewModelScope.launch {
+            try {
+                val response = api.getBuildResult(id)
+                if (response.isSuccessful) {
+                    println("Resultado: ${response.body()}")
+                } else {
+                    println("Error: ${response.errorBody()}")
+                }
+            } catch (e: Exception) {
+                println("Error obteniendo resultado: ${e.message}")
+            }
+        }
+    }
+
+    // ----------------------------------------------------
+    // ✅ Utilidades
+    // ----------------------------------------------------
+
     fun clearErrorMessage() {
         _errorMessage.value = null
     }
+
     fun setErrorMessage(message: String) {
         _errorMessage.value = message
     }
+
     fun getCategoryById(categoryId: Long): Category? {
         return _categories.value.firstOrNull { it.id == categoryId }
     }
@@ -155,5 +259,18 @@ class ComponentViewModel(private val api: ComponentApi) : ViewModel() {
     fun getManufacturerById(manufacturerId: Long): Manufacturer? {
         return _manufacturers.value.firstOrNull { it.id == manufacturerId }
     }
-
 }
+
+@Serializable
+data class Category(
+    val id: Long,
+    val name: String,
+    val parent: Category? = null
+)
+
+data class Manufacturer(
+    val id: Long,
+    val name: String,
+    val website: String? = null,
+    val supportEmail: String? = null
+)

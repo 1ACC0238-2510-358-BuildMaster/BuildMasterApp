@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Store
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.buildmasterapp.R
 
-
 sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVector? = null) {
     object Home : Screen("home", R.string.home, Icons.Filled.Home)
     object PCConfig : Screen("pc_config", R.string.pc_config, Icons.Filled.Computer)
@@ -17,7 +16,9 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
     object Store : Screen("store", R.string.store, Icons.Filled.Store)
     object Prices : Screen("prices", R.string.prices, Icons.Filled.AttachMoney)
 
-    // Para el Navigation Drawer (sin íconos en la definición de ruta principal)
+    object Catalogue : Screen("catalogue", R.string.catalogue)
+
+    // Drawer
     object Profile : Screen("profile", R.string.profile)
     object Settings : Screen("settings", R.string.settings)
     object Language : Screen("language", R.string.language)
@@ -31,7 +32,6 @@ val bottomNavItems = listOf(
     Screen.Chat,
     Screen.Store,
     Screen.Prices
-
 )
 
 val drawerNavItems = listOf(
