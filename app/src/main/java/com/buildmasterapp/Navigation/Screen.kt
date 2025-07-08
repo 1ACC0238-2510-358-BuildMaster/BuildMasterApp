@@ -5,7 +5,6 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Store
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.buildmasterapp.R
 
@@ -13,7 +12,7 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
     object Home : Screen("home", R.string.home, Icons.Filled.Home)
     object PCConfig : Screen("pc_config", R.string.pc_config, Icons.Filled.Computer)
     object Chat : Screen("chat", R.string.chat, Icons.Filled.Chat)
-    object Store : Screen("store", R.string.store, Icons.Filled.Store)
+
     object Prices : Screen("prices", R.string.prices, Icons.Filled.AttachMoney)
 
     object Catalogue : Screen("catalogue", R.string.catalogue)
@@ -30,8 +29,7 @@ val bottomNavItems = listOf(
     Screen.Home,
     Screen.PCConfig,
     Screen.Chat,
-    Screen.Store,
-    Screen.Prices
+    Screen.Prices // Eliminado Store
 )
 
 val drawerNavItems = listOf(
