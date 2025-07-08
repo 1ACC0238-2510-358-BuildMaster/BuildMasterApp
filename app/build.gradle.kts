@@ -41,8 +41,6 @@ android {
 
 dependencies {
 
-    implementation("androidx.compose.material3:material3:1.1.2")
-
     // JSON parsing
     implementation("com.google.code.gson:gson:2.10.1")
 
@@ -57,42 +55,26 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // Material Design
+    // Material Design (View System)
     implementation("com.google.android.material:material:1.11.0")
 
-    //Navigation
-    val nav_version = "2.9.0"
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.9.0")
 
-    // Jetpack Compose integration
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-
-    // Dependencias adicionales requeridas:
+    // Compose Runtime
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
-    implementation("androidx.compose.runtime:runtime:1.5.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-
-    // Para ViewModel con Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
-    // Material3
-    implementation("androidx.compose.material3:material3:1.1.2")
-
-    // Icons
-    implementation("androidx.compose.material:material-icons-core:1.5.4")
-    implementation("androidx.compose.material:material-icons-extended:1.5.4")
-
-    implementation(platform("androidx.compose:compose-bom:2024.01.00"))
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
+    // OkHttp
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
-    //cargar imagener url
+    // Coil (Image Loading)
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
-    implementation("io.coil-kt:coil-compose:2.4.0") // Agregar Coil para cargar imágenes
+    implementation("io.coil-kt:coil:2.4.0")
 
+    // AndroidX & Compose (from version catalog)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -102,9 +84,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -113,5 +96,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
 }

@@ -22,6 +22,7 @@ data class PostItem(
     val id: String = UUID.randomUUID().toString(),
     val authorId: Int, // user_id del autor
     val authorName: String?,
+    val email: String? = null, // Campo para el email
     val authorProfilePictureUrl: String? = null, // URL del avatar
     val title: String? = null, // Nuevo campo para el título
     val timestamp: Long = System.currentTimeMillis(),

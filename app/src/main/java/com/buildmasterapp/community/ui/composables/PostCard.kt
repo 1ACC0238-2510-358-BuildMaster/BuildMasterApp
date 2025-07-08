@@ -31,7 +31,7 @@ import com.buildmasterapp.ui.theme.AccentColor
 import com.buildmasterapp.ui.theme.IconColor
 import com.buildmasterapp.ui.theme.TextColorPrimary
 import com.buildmasterapp.ui.theme.TextColorSecondary
-import coil.compose.rememberAsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
 
 
 @Composable
@@ -120,12 +120,13 @@ fun PostCard(
                                 ),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
+                            // Mostrar el username debajo del nombre de usuario
+                            Text(
+                                text = "@${it}",
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                        Text(
-                            text = post.getFormattedTimestamp(),
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
 
                     // Botón de opciones mejorado
