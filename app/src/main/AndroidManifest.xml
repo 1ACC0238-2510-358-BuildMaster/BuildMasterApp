@@ -26,6 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".user.presentation.ProfileActivity"
+            android:exported="false"
+            android:label="Perfil de Usuario"
+            android:theme="@style/Theme.BuildMasterApp" />
     </application>
 
 </manifest>

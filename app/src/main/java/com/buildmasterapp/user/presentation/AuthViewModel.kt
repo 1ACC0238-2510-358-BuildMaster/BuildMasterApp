@@ -30,6 +30,7 @@ class AuthViewModel(
                 if (!response.access_token.isNullOrEmpty()) {
                     Log.d("AuthViewModel", "Login exitoso, guardando token...")
                     dataStoreManager.saveToken(response.access_token)
+                    com.buildmasterapp.user.data.InMemoryTokenHolder.token = response.access_token
                     _uiState.value = AuthUiState.Success(email)
                 } else {
                     Log.e("AuthViewModel", "Login fallido: token vacío o nulo")

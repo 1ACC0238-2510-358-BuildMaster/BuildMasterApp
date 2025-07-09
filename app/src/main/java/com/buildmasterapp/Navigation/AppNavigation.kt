@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,6 +23,14 @@ import com.buildmasterapp.catalogue.viewmodels.ComponentViewModelFactory
 import com.buildmasterapp.ui.screens.ChatScreen
 import com.buildmasterapp.ui.screens.HomeScreen
 import com.buildmasterapp.ui.screens.PricesScreen
+import com.buildmasterapp.user.presentation.ProfileScreen
+import com.buildmasterapp.user.presentation.ProfileViewModel
+import com.buildmasterapp.user.presentation.ProfileUiState
+import com.buildmasterapp.user.data.ProfileApi
+import com.buildmasterapp.user.data.ProfileRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @Composable
 fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -75,11 +84,46 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Screen.Prices.route) { PricesScreen() }
 
         composable(Screen.Profile.route) {
-            GenericScreen(name = stringResource(id = Screen.Profile.titleResId))
+            val client = okhttp3.OkHttpClient.Builder()
+                .addInterceptor(com.buildmasterapp.user.data.AuthInterceptor { com.buildmasterapp.user.data.InMemoryTokenHolder.token })
+                .build()
+            val retrofit = Retrofit.Builder()
+                .baseUrl("https://buildmaster-api-ddh3asdah2bsggfs.canadacentral-01.azurewebsites.net/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build()
+            val api = retrofit.create(ProfileApi::class.java)
+            val repository = ProfileRepository(api)
+            val viewModel: ProfileViewModel = viewModel(factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                    @Suppress("UNCHECKED_CAST")
+                    return ProfileViewModel(repository) as T
+                }
+            })
+            val uiState = viewModel.uiState.collectAsState().value
+            LaunchedEffect(Unit) {
+                viewModel.loadMe()
+            }
+            ProfileScreen(
+                uiState = uiState,
+                onRetry = { viewModel.loadMe() },
+                onLogout = {
+                    navController.navigate("auth") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(Screen.Settings.route) {
-            GenericScreen(name = stringResource(id = Screen.Settings.titleResId))
+            com.buildmasterapp.ui.composables.SettingsScreen(
+                onLogout = {
+                    // Aquí puedes limpiar preferencias y navegar a login o auth
+                    navController.navigate("auth") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(Screen.Language.route) {

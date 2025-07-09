@@ -120,7 +120,7 @@ fun PostCard(
                                 ),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            // Mostrar el username debajo del nombre de usuario
+                            // Mostrar solo el username, sin icono ni imagen
                             Text(
                                 text = "@${it}",
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
@@ -160,20 +160,7 @@ fun PostCard(
                     )
                 }
 
-                // Contenido del post
-                Text(
-                    text = post.content,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 15.sp,
-                        lineHeight = 22.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = if (commentsExpanded) Int.MAX_VALUE else 5,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                // Media gallery mejorada
+                // Media gallery mejorada (primero la imagen)
                 if (post.mediaUrls.isNotEmpty()) {
                     if (post.mediaUrls.size == 1) {
                         Image(
@@ -185,6 +172,7 @@ fun PostCard(
                                 .clip(RoundedCornerShape(12.dp)),
                             contentScale = ContentScale.Crop
                         )
+                        Spacer(modifier = Modifier.height(12.dp))
                     } else {
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -202,9 +190,22 @@ fun PostCard(
                                 )
                             }
                         }
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
+
+                // Contenido del post (después de la imagen y con padding)
+                Text(
+                    text = post.content,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = 15.sp,
+                        lineHeight = 22.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .padding(bottom = 12.dp)
+                        .fillMaxWidth()
+                )
             }
 
             // Barra de interacciones completamente rediseñada
