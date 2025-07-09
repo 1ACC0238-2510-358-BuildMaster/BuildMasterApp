@@ -33,7 +33,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.buildmasterapp.Navigation.Screen
 import com.buildmasterapp.R // Asegúrate de que este es el R correcto de tu proyecto
-import com.buildmasterapp.ui.theme.BuildMasterTheme // Asegúrate de que este es tu tema
+import com.buildmasterapp.ui.theme.BuildMasterAppTheme
 
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalAnimationApi::class)
@@ -204,5 +204,35 @@ fun HomeScreen(navController: NavHostController) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun AnimatedButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        content()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    BuildMasterAppTheme {
+        // Elimina el NavHostController de la vista previa si no es necesario
+        // o proporciona una implementación falsa/stub.
+        // HomeScreen(navController = rememberNavController())
     }
 }

@@ -25,7 +25,7 @@ import com.buildmasterapp.Navigation.AppNavHost
 import com.buildmasterapp.Navigation.Screen
 import com.buildmasterapp.Navigation.bottomNavItems
 import com.buildmasterapp.Navigation.drawerNavItems
-import com.buildmasterapp.ui.theme.BuildMasterTheme
+import com.buildmasterapp.ui.theme.BuildMasterAppTheme
 import kotlinx.coroutines.launch
 import com.buildmasterapp.R
 
@@ -153,7 +153,7 @@ fun DashboardScreen() {
 @Preview(showBackground = true)
 @Composable
 fun DashboardScreenPreview() {
-    BuildMasterTheme {
+    BuildMasterAppTheme {
         DashboardScreen()
     }
 }
@@ -161,7 +161,7 @@ fun DashboardScreenPreview() {
 @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun DashboardScreenDarkPreview() {
-    BuildMasterTheme(darkTheme = true) {
+    BuildMasterAppTheme(darkTheme = true) {
         DashboardScreen()
     }
 }

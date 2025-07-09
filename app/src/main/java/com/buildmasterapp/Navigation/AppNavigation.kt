@@ -126,9 +126,6 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
             )
         }
 
-        composable(Screen.Language.route) {
-            GenericScreen(name = stringResource(id = Screen.Language.titleResId))
-        }
 
         composable(Screen.Glossary.route) {
             com.buildmasterapp.ui.screens.GlosaryScreen()

@@ -20,7 +20,7 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
     // Drawer
     object Profile : Screen("profile", R.string.profile)
     object Settings : Screen("settings", R.string.settings)
-    object Language : Screen("language", R.string.language)
+
     object Glossary : Screen("glossary", R.string.glossary)
     object Logout : Screen("logout", R.string.logout)
 }
@@ -35,7 +35,7 @@ val bottomNavItems = listOf(
 val drawerNavItems = listOf(
     Screen.Profile,
     Screen.Settings,
-    Screen.Language,
+
     Screen.Glossary,
     Screen.Logout
 )
