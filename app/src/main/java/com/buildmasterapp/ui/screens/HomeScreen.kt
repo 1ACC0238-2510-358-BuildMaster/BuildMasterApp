@@ -159,7 +159,11 @@ fun HomeScreen(navController: NavHostController) {
                 exit = fadeOut(animationSpec = tween(500))
             ) {
                 Button(
-                    onClick = { navController.navigate(Screen.PCConfig.route)  },
+                    onClick = { navController.navigate(Screen.PCConfig.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                              },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
